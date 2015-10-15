@@ -22,7 +22,9 @@ abstract class WiremockCdnTest extends Specification {
     @Shared HttpClient cdn
     @Shared FastlyClient fastly
 
-    static def secondsToStale = 5
+    public static final def secondsToStale = 5
+
+    public static final def CacheControl = 'Surrogate-Control'
 
     String path
 
