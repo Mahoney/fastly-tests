@@ -8,6 +8,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Map;
 
+import static java.time.Duration.ofSeconds;
 import static java.util.stream.IntStream.range;
 
 public class HttpClient {
@@ -60,6 +61,8 @@ public class HttpClient {
 
         HttpRequest request = new HttpRequest().method(method).set(baseUri.resolve(path).toASCIIString());
 
+        request.timeout((int) ofSeconds(5).toMillis());
+
         standardHeaders.entrySet().stream().forEach(entry ->
                 request.header(entry.getKey(), entry.getValue())
         );
@@ -77,7 +80,10 @@ public class HttpClient {
                 header(response, "Cache-Control") +
                 header(response, "X-Served-By") +
                 header(response, "X-Cache") +
-                header(response, "X-Cache-Hits")
+                header(response, "X-Cache-Hits") +
+                header(response, "Fastly-Debug-Path") +
+                header(response, "Fastly-Debug-Ttl") +
+                header(response, "Fastly-Debug-Digest")
         );
         return response;
     }
@@ -87,9 +93,13 @@ public class HttpClient {
     }
 
     public void warm(String path) {
-        range(0, 100).parallel().forEach(n ->
-            get(path)
-        );
+        range(0, 100).parallel().forEach(n -> {
+            try {
+                get(path);
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+            }
+        });
     }
 
     public HttpResponse put(String path) {

@@ -3,6 +3,7 @@ package tests
 import client.FastlyClient
 import client.HttpClient
 import com.github.tomakehurst.wiremock.client.WireMock
+import com.google.common.collect.ImmutableMap
 import spock.lang.Shared
 import spock.lang.Specification
 import tests.support.FastlyToHeroku
@@ -33,7 +34,7 @@ abstract class WiremockCdnTest extends Specification {
 
         origin = new WireMockClient(new WireMock("${appName}.herokuapp.com", 80))
 
-        cdn = new HttpClient("https://${appName}.global.ssl.fastly.net/")
+        cdn = new HttpClient("https://${appName}.global.ssl.fastly.net/", ImmutableMap.of('Fastly-debug','1'))
 
         fastly.purgeAll()
         Thread.sleep(1000L)

@@ -33,16 +33,12 @@ public class FastlyClient {
 
     public HttpResponse purgeByKey(String key) {
         return ifSuccess(
-                client.post(purgeUrl(key))
+            client.post(purgeUrl(key))
         );
     }
 
     public List<Map<String, Object>> services() {
         return json(ifSuccess(client.get("/service")), List.class);
-    }
-
-    public List<Map<String, Object>> getBackend(String number) {
-        return json(ifSuccess(client.get("/service/" + serviceId + "/version/" + number + "/backend")), List.class);
     }
 
     private <T> T json(HttpResponse response, Class<T> type) {
