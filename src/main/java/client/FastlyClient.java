@@ -1,0 +1,82 @@
+package client;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jodd.http.HttpResponse;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import static com.google.common.collect.ImmutableMap.of;
+
+public class FastlyClient {
+
+    private final HttpClient client;
+    private final String serviceId;
+
+    public FastlyClient(String serviceId, String apiKey) {
+        this.serviceId = serviceId;
+        this.client = new HttpClient("https://api.fastly.com/", of("Fastly-Key", apiKey));
+    }
+
+    public HttpResponse purgeAll() {
+        return ifSuccess(
+            client.post("/service/" + serviceId + "/purge_all")
+        );
+    }
+
+    public HttpResponse softPurgeByKey(String key) {
+        return ifSuccess(
+            client.post(purgeUrl(key), of("Fastly-Soft-Purge", "1"))
+        );
+    }
+
+    public HttpResponse purgeByKey(String key) {
+        return ifSuccess(
+                client.post(purgeUrl(key))
+        );
+    }
+
+    public List<Map<String, Object>> services() {
+        return json(ifSuccess(client.get("/service")), List.class);
+    }
+
+    public List<Map<String, Object>> getBackend(String number) {
+        return json(ifSuccess(client.get("/service/" + serviceId + "/version/" + number + "/backend")), List.class);
+    }
+
+    private <T> T json(HttpResponse response, Class<T> type) {
+        try {
+            return new ObjectMapper().readValue(response.body(), type);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String purgeUrl(String key) {
+        return "/service/"+serviceId+"/purge/"+key;
+    }
+
+    private HttpResponse ifSuccess(HttpResponse response) {
+        if (response.statusCode() < 400) {
+            return response;
+        } else {
+            throw new AssertionError("Not a success: \n"+response+" in response to "+response.getHttpRequest());
+        }
+    }
+
+
+    public Map createService(String name, String backend) {
+        Map service = json(ifSuccess(client.post("/service", "name=" + name)), Map.class);
+        String id = service.get("id").toString();
+        ifSuccess(client.post("/service/"+ id +"/version/1/domain", "name="+name+".global.ssl.fastly.net"));
+        ifSuccess(client.post("/service/" + id + "/version/1/backend", "hostname=" + backend + "&name=" + name));
+        ifSuccess(client.put("/service/" + id + "/version/1/activate"));
+        return service;
+    }
+
+    public void destroyService(String id) {
+        ifSuccess(client.put("/service/" + id + "/version/1/deactivate"));
+        ifSuccess(client.delete("/service/" + id));
+    }
+}
