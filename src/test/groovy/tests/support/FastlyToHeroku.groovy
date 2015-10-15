@@ -11,8 +11,10 @@ class FastlyToHeroku {
 
         if (!service) {
             service = fastly.createService(appName, "${appName}.herokuapp.com")
-            Runtime.runtime.addShutdownHook {
-                fastly.destroyService(service.id)
+            if (!System.getenv('APP_NAME')) {
+                Runtime.runtime.addShutdownHook {
+                    fastly.destroyService(service.id)
+                }
             }
         }
 

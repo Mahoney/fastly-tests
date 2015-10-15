@@ -14,7 +14,7 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric
 
 abstract class WiremockCdnTest extends Specification {
 
-    static final String appName = "wiremock-fastly-tests-${randomAlphanumeric(5).toLowerCase()}"
+    static final String appName = System.getenv("APP_NAME") ?: "wiremock-fastly-tests-${randomAlphanumeric(5).toLowerCase()}"
     static final String fastlyApiKey = System.getenv('FASTLY_API_KEY')
 
     @Shared WireMockClient origin
@@ -35,6 +35,8 @@ abstract class WiremockCdnTest extends Specification {
 
         cdn = new HttpClient("https://${appName}.global.ssl.fastly.net/")
 
+        fastly.purgeAll()
+        Thread.sleep(1000L)
         while (cdn.get("/__admin/").statusCode() != 200) {
             fastly.purgeAll()
             Thread.sleep(1000L)
