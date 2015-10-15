@@ -36,7 +36,7 @@ class StaleWhileRevalidateTest extends WiremockCdnTest {
             invalidationActionName  | invalidationAction                                | cacheSettings                                 | expectedResponse
             'cached response stale' | { SECONDS.sleep(secondsToStale+2) }               | ''                                            | 'new response'
             'cached response stale' | { SECONDS.sleep(secondsToStale+2) }               | 'stale-while-revalidate=1'                    | 'new response'
-            'cached response stale' | { SECONDS.sleep(secondsToStale+2) }               | 'stale-while-revalidate=1,stale-if-error=1'   | 'new response'
+            'cached response stale' | { SECONDS.sleep(secondsToStale+3) }               | 'stale-while-revalidate=1,stale-if-error=1'   | 'new response'
             'cached response stale' | { SECONDS.sleep(secondsToStale+2) }               | 'stale-while-revalidate=30'                   | 'cached response'
             'cached response stale' | { SECONDS.sleep(secondsToStale+2) }               | 'stale-while-revalidate=30,stale-if-error=30' | 'cached response'
 

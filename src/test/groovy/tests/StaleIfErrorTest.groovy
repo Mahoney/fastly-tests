@@ -38,11 +38,11 @@ class StaleIfErrorTest extends WiremockCdnTest {
             'cache soft purged'     | { fastly.softPurgeByKey(it)}                     | 'stale-if-error=30'                           | 'cached response'
             'cache soft purged'     | { fastly.softPurgeByKey(it)}                     | 'stale-while-revalidate=30,stale-if-error=30' | 'cached response'
 
-            'cached response stale' | { SECONDS.sleep(secondsToStale+3) }              | ''                                            | 'broken response'
-            'cached response stale' | { SECONDS.sleep(secondsToStale+3) }              | 'stale-while-revalidate=30'                   | 'broken response'
+            'cached response stale' | { SECONDS.sleep(secondsToStale+2) }              | ''                                            | 'broken response'
+            'cached response stale' | { SECONDS.sleep(secondsToStale+2) }              | 'stale-while-revalidate=30'                   | 'broken response'
             'cached response stale' | { SECONDS.sleep(secondsToStale+3) }              | 'stale-while-revalidate=1,stale-if-error=1'   | 'broken response'
-            'cached response stale' | { SECONDS.sleep(secondsToStale+3) }              | 'stale-if-error=30'                           | 'cached response'
-            'cached response stale' | { SECONDS.sleep(secondsToStale+3) }              | 'stale-while-revalidate=30,stale-if-error=30' | 'cached response'
+            'cached response stale' | { SECONDS.sleep(secondsToStale+2) }              | 'stale-if-error=30'                           | 'cached response'
+            'cached response stale' | { SECONDS.sleep(secondsToStale+2) }              | 'stale-while-revalidate=30,stale-if-error=30' | 'cached response'
 
             'cache hard purged'     | { fastly.purgeByKey(it)}                         | ''                                            | 'broken response'
             'cache hard purged'     | { fastly.purgeByKey(it)}                         | 'stale-while-revalidate=30'                   | 'broken response'
