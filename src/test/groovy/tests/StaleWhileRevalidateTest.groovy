@@ -33,23 +33,24 @@ class StaleWhileRevalidateTest extends WiremockCdnTest {
             cdn.get(path).body() == expectedResponse
 
         where:
-            invalidationActionName  | invalidationAction                                | cacheSettings                                 | expectedResponse
-            'cached response stale' | { SECONDS.sleep(secondsToStale+2) }               | ''                                            | 'new response'
-            'cached response stale' | { SECONDS.sleep(secondsToStale+2) }               | 'stale-while-revalidate=1'                    | 'new response'
-            'cached response stale' | { SECONDS.sleep(secondsToStale+3) }               | 'stale-while-revalidate=1,stale-if-error=1'   | 'new response'
-            'cached response stale' | { SECONDS.sleep(secondsToStale+2) }               | 'stale-while-revalidate=30'                   | 'cached response'
-            'cached response stale' | { SECONDS.sleep(secondsToStale+2) }               | 'stale-while-revalidate=30,stale-if-error=30' | 'cached response'
+            invalidationActionName  | invalidationAction                                | cacheSettings                                                               | expectedResponse
 
-            'cache soft purged'     | { fastly.softPurgeByKey(it) }                     | ''                                            | 'new response'
-            'cache soft purged'     | { fastly.softPurgeByKey(it) && SECONDS.sleep(2) } | 'stale-while-revalidate=1'                    | 'new response'
-            'cache soft purged'     | { fastly.softPurgeByKey(it) && SECONDS.sleep(3) } | 'stale-while-revalidate=1,stale-if-error=1'   | 'new response'
-            'cache soft purged'     | { fastly.softPurgeByKey(it) }                     | 'stale-while-revalidate=30'                   | 'cached response'
-            'cache soft purged'     | { fastly.softPurgeByKey(it) }                     | 'stale-while-revalidate=30,stale-if-error=30' | 'cached response'
+            'cache soft purged'     | { fastly.softPurgeByKey(it) }                     | ''                                                                          | 'new response'
+            'cache soft purged'     | { fastly.softPurgeByKey(it) && SECONDS.sleep(2) } | 'stale-while-revalidate=1'                                                  | 'new response'
+            'cache soft purged'     | { fastly.softPurgeByKey(it) && SECONDS.sleep(3) } | 'stale-while-revalidate=1,stale-if-error=1'                                 | 'new response'
+            'cache soft purged'     | { fastly.softPurgeByKey(it) }                     | "stale-while-revalidate=${secondsToStale}"                                  | 'cached response'
+            'cache soft purged'     | { fastly.softPurgeByKey(it) }                     | "stale-while-revalidate=${secondsToStale},stale-if-error=${secondsToStale}" | 'cached response'
 
-            'cache hard purged'     | { fastly.purgeByKey(it) }                         | ''                                            | 'new response'
-            'cache hard purged'     | { fastly.purgeByKey(it) && SECONDS.sleep(2) }     | 'stale-while-revalidate=1'                    | 'new response'
-            'cache hard purged'     | { fastly.purgeByKey(it) && SECONDS.sleep(3) }     | 'stale-while-revalidate=1,stale-if-error=1'   | 'new response'
-            'cache hard purged'     | { fastly.purgeByKey(it) }                         | 'stale-while-revalidate=30'                   | 'new response'
-            'cache hard purged'     | { fastly.purgeByKey(it) }                         | 'stale-while-revalidate=30,stale-if-error=30' | 'new response'
+            'cache hard purged'     | { fastly.purgeByKey(it) }                         | ''                                                                          | 'new response'
+            'cache hard purged'     | { fastly.purgeByKey(it) && SECONDS.sleep(2) }     | 'stale-while-revalidate=1'                                                  | 'new response'
+            'cache hard purged'     | { fastly.purgeByKey(it) && SECONDS.sleep(3) }     | 'stale-while-revalidate=1,stale-if-error=1'                                 | 'new response'
+            'cache hard purged'     | { fastly.purgeByKey(it) }                         | "stale-while-revalidate=${secondsToStale}"                                  | 'new response'
+            'cache hard purged'     | { fastly.purgeByKey(it) }                         | "stale-while-revalidate=${secondsToStale},stale-if-error=${secondsToStale}" | 'new response'
+
+            'cached response stale' | { SECONDS.sleep(secondsToStale+2) }               | ''                                                                          | 'new response'
+            'cached response stale' | { SECONDS.sleep(secondsToStale+2) }               | 'stale-while-revalidate=1'                                                  | 'new response'
+            'cached response stale' | { SECONDS.sleep(secondsToStale+3) }               | 'stale-while-revalidate=1,stale-if-error=1'                                 | 'new response'
+            'cached response stale' | { SECONDS.sleep(secondsToStale+2) }               | "stale-while-revalidate=${secondsToStale}"                                  | 'cached response'
+            'cached response stale' | { SECONDS.sleep(secondsToStale+2) }               | "stale-while-revalidate=${secondsToStale},stale-if-error=${secondsToStale}" | 'cached response'
     }
 }
