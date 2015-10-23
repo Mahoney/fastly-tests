@@ -7,3 +7,5 @@
 *.iws
 *.ids
 .idea
+build
+.gradle

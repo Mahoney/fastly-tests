@@ -1,14 +1,12 @@
 package client;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper
+import groovy.transform.CompileStatic;
 import jodd.http.HttpResponse;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 import static com.google.common.collect.ImmutableMap.of;
 
+@CompileStatic
 public class FastlyClient {
 
     private final HttpClient client;
@@ -54,11 +52,8 @@ public class FastlyClient {
     }
 
     private HttpResponse ifSuccess(HttpResponse response) {
-        if (response.statusCode() < 400) {
-            return response;
-        } else {
-            throw new AssertionError("Not a success: \n"+response+" in response to "+response.getHttpRequest());
-        }
+        assert response.statusCode() < 400, "Not a success: \n"+response+" in response to "+response.getHttpRequest()
+        return response
     }
 
 
