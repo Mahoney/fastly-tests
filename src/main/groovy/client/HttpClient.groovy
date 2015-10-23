@@ -1,28 +1,39 @@
 package client;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap
+import groovy.transform.CompileStatic;
 import jodd.http.HttpRequest;
 import jodd.http.HttpResponse;
-
-import java.net.URI;
-import java.util.Arrays;
-import java.util.Map;
 
 import static java.time.Duration.ofSeconds;
 import static java.util.stream.IntStream.range;
 
+@CompileStatic
 public class HttpClient {
 
     private final URI baseUri;
     private final ImmutableMap<String, String> standardHeaders;
+    private final InetAddress resolvedIp
+    private final String host
 
     public HttpClient(String baseUri) {
         this(baseUri, ImmutableMap.<String, String>of());
     }
 
     public HttpClient(String baseUri, ImmutableMap<String, String> standardHeaders) {
-        this.baseUri = URI.create(baseUri);
-        this.standardHeaders = standardHeaders;
+        def uriWithHost = URI.create(baseUri)
+        this.host = uriWithHost.host
+        this.resolvedIp = InetAddress.getByName(host)
+        this.baseUri = new URI(
+                uriWithHost.scheme,
+                uriWithHost.userInfo,
+                resolvedIp.canonicalHostName,
+                uriWithHost.port,
+                uriWithHost.path,
+                uriWithHost.query,
+                uriWithHost.fragment
+        );
+        this.standardHeaders = ImmutableMap.copyOf(standardHeaders + [Host: host]);
     }
 
     public HttpResponse get(String path) {
@@ -63,13 +74,14 @@ public class HttpClient {
 
         request.timeout((int) ofSeconds(5).toMillis());
 
-        standardHeaders.entrySet().stream().forEach(entry ->
-                request.header(entry.getKey(), entry.getValue())
-        );
-        headers.entrySet().stream().forEach(entry ->
-                request.header(entry.getKey(), entry.getValue())
-        )
-        ;
+        standardHeaders.entrySet().each { entry ->
+            request.header(entry.getKey(), entry.getValue())
+        }
+
+        headers.entrySet().each { entry ->
+            request.header(entry.getKey(), entry.getValue())
+        }
+
         if (body != null) {
             request.body(body);
         }
@@ -93,13 +105,13 @@ public class HttpClient {
     }
 
     public void warm(String path) {
-        range(0, 100).parallel().forEach(n -> {
+        range(0, 100).parallel().forEach { n ->
             try {
                 get(path);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
             }
-        });
+        };
     }
 
     public HttpResponse put(String path) {
