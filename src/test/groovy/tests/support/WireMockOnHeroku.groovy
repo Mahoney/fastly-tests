@@ -19,7 +19,7 @@ class WireMockOnHeroku {
             exec(new File(tempdir, 'wiremock-heroku'), "./wiremock-heroku.sh $appName")
             exec("heroku domains:add ${appName}.global.ssl.fastly.net --app $appName")
 
-            if (!System.getenv('APP_NAME')) {
+            if (!System.getenv('HEROKU_APP_NAME')) {
                 Runtime.runtime.addShutdownHook {
                     exec("heroku apps:destroy --app $appName --confirm $appName")
                 }

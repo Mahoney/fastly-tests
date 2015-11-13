@@ -15,7 +15,7 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric
 
 abstract class WiremockCdnTest extends Specification {
 
-    static final String appName = System.getenv("APP_NAME") ?: "wiremock-fastly-tests-${randomAlphanumeric(5).toLowerCase()}"
+    static final String appName = System.getenv("HEROKU_APP_NAME") ?: "wiremock-fastly-tests-${randomAlphanumeric(5).toLowerCase()}"
     static final String fastlyApiKey = System.getenv('FASTLY_API_KEY')
 
     @Shared WireMockClient origin
